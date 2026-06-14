@@ -1,4 +1,4 @@
-Tracking State Machine
+# Tracking State Machine
 
 Core behavior used while following the enrolled speaker.
 
