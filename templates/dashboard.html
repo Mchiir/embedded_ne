@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>BENAX // speaker-track</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #030406;
+    --bg2: #07090e;
+    --panel: #0b0e14;
+    --panel2: #11151f;
+    --line: #1b212c;
+    --line2: #2a3345;
+    
+    --txt: #e2e8f0;
+    --dim: #707e94;
+    --faint: #414b5e;
+    
+    --cyan: #00f3ff;
+    --cyan-dim: #005f66;
+    --green: #00ff87;
+    --green-dim: #00522c;
+    --amber: #ffb800;
+    --amber-dim: #5c4200;
+    --red: #ff4655;
+    --mono: 'Geist Mono', 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  ::selection { background: var(--cyan); color: #000; }
+  
+  html, body { height: 100%; margin: 0; }
+  
+  body {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--txt);
+    background: var(--bg);
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.003) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.003) 1px, transparent 1px);
+    background-size: 20px 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(7, 9, 14, 0.8);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .logo {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1.5px;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .logo .sep { color: var(--cyan); text-shadow: 0 0 10px rgba(0,243,255,0.4); }
+  .logo .blink { color: var(--cyan); animation: blink 1.2s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  
+  .tag {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--cyan);
+    background: rgba(0, 243, 255, 0.05);
+    border: 1px solid var(--cyan-dim);
+    padding: 3px 8px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  header .sub { color: var(--dim); font-size: 11px; letter-spacing: 0.5px; }
+  header .right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+  
+  .fps { font-size: 11px; color: var(--dim); letter-spacing: 0.5px; }
+  .fps b { color: var(--txt); font-weight: 600; }
+  
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+    display: inline-block;
+  }
+  .dot.on {
+    background: var(--green);
+    box-shadow: 0 0 12px var(--green);
+  }
+
+  /* ---------- layout ---------- */
+  .wrap {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 16px;
+    padding: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  @media(max-width: 1100px) { .wrap { grid-template-columns: 1fr; padding: 16px; } }
+  
+  .col { display: flex; flex-direction: column; gap: 16px; }
+  
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .panel>h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 12px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #fff;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.01);
+    border-bottom: 1px solid var(--line);
+  }
+  .panel>h2::before {
+    content: '';
+    width: 4px;
+    height: 12px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  .panel>h2 .meta { margin-left: auto; color: var(--dim); letter-spacing: 0.5px; font-size: 10px; font-weight: 400; }
+
+  /* ---------- feed ---------- */
+  .feed {
+    position: relative;
+    background: #000;
+    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .feed img { width: 100%; height: 100%; object-fit: contain; }
+  .feed::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 80px rgba(0,0,0,0.8);
+  }
+  
+  .badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    padding: 6px 12px;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 2px;
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+  .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .badge.lock {
+    background: rgba(0, 255, 135, 0.08);
+    color: var(--green);
+    border: 1px solid rgba(0, 255, 135, 0.3);
+    text-shadow: 0 0 8px rgba(0,255,135,0.4);
+  }
+  .badge.search {
+    background: rgba(255, 184, 0, 0.08);
+    color: var(--amber);
+    border: 1px solid rgba(255, 184, 0, 0.3);
+    text-shadow: 0 0 8px rgba(255,184,0,0.4);
+  }
+  
+  .corner { position: absolute; width: 12px; height: 12px; border: 2px solid var(--cyan); z-index: 2; opacity: 0.7; }
+  .corner.tl { top: 16px; left: 16px; border-right: 0; border-bottom: 0; }
+  .corner.tr { top: 16px; right: 16px; border-left: 0; border-bottom: 0; }
+  .corner.bl { bottom: 16px; left: 16px; border-right: 0; border-top: 0; }
+  .corner.br { bottom: 16px; right: 16px; border-left: 0; border-top: 0; }
+
+  /* ---------- error gauge ---------- */
+  .gaugewrap { padding: 20px 16px; background: var(--panel2); border-top: 1px solid var(--line); }
+  .gauge { position: relative; height: 8px; background: #000; border: 1px solid var(--line2); overflow: visible; }
+  .gauge .mid { position: absolute; left: 50%; top: -4px; bottom: -4px; width: 1px; background: var(--line2); }
+  .gauge .dead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: rgba(0, 243, 255, 0.03);
+    border-left: 1px dashed rgba(0, 243, 255, 0.2);
+    border-right: 1px dashed rgba(0, 243, 255, 0.2);
+  }
+  .gauge .mark {
+    position: absolute;
+    top: -5px;
+    width: 3px;
+    height: 16px;
+    background: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan);
+    transition: left 0.1s ease;
+  }
+  .glabel {
+    display: flex;
+    justify-content: space-between;
+    color: var(--dim);
+    font-size: 9px;
+    letter-spacing: 1.2px;
+    margin-top: 12px;
+    text-transform: uppercase;
+  }
+
+  /* ---------- metric cards ---------- */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); }
+  .card { background: var(--panel2); padding: 16px; transition: background 0.2s; }
+  .card:hover { background: rgba(255,255,255,0.01); }
+  .card .k { color: var(--dim); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; }
+  .card .v { font-size: 22px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; color: #fff; }
+  .card .v.small { font-size: 14px; font-weight: 500; color: var(--txt); letter-spacing: 0.3px; }
+
+  /* ---------- servo dial ---------- */
+  .servo { padding: 20px 16px; background: var(--panel2); display: flex; align-items: center; gap: 24px; }
+  .dial { position: relative; width: 96px; height: 96px; flex: 0 0 auto; }
+  .dial .ang {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #fff;
+    padding-top: 36px;
+  }
+  .servo .info .k { color: var(--dim); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; }
+  .servo .info .v { font-size: 14px; margin: 4px 0 12px; font-weight: 500; }
+
+  /* ---------- log table ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+  th {
+    position: sticky;
+    top: 0;
+    background: var(--panel2);
+    color: var(--dim);
+    text-align: left;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    z-index: 1;
+  }
+  td { padding: 8px 16px; border-bottom: 1px solid rgba(27, 33, 44, 0.4); color: var(--txt); }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  td:first-child { color: var(--dim); }
+  
+  .logbox { max-height: 295px; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+  .logbox::-webkit-scrollbar { width: 6px; }
+  .logbox::-webkit-scrollbar-thumb { background: var(--line2); }
+  
+  .pill { padding: 3px 8px; font-size: 9.5px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .s-MOVED_LEFT, .s-MOVED_RIGHT { background: rgba(0, 243, 255, 0.08); color: var(--cyan); border: 1px solid rgba(0, 243, 255, 0.2); }
+  .s-CENTERED { background: rgba(0, 255, 135, 0.08); color: var(--green); border: 1px solid rgba(0, 255, 135, 0.2); }
+  .s-STOPPED, .s-OUT_OF_FRAME { background: rgba(112, 126, 148, 0.1); color: var(--dim); border: 1px solid rgba(112, 126, 148, 0.2); }
+  .s-SEARCHING { background: rgba(255, 184, 0, 0.08); color: var(--amber); border: 1px solid rgba(255, 184, 0, 0.2); }
+  
+  .yes { color: var(--green); font-weight: 700; }
+  .no { color: var(--faint); }
+  
+  /* ---------- controls ---------- */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: var(--panel2);
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .controls button {
+    font-family: var(--mono);
+    background: var(--panel);
+    color: var(--txt);
+    border: 1px solid var(--line2);
+    padding: 8px 14px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .controls button:hover { border-color: var(--cyan); color: #000; background: var(--cyan); box-shadow: 0 0 12px rgba(0,243,255,0.3); }
+  .controls button.save { color: var(--green); border-color: rgba(0, 255, 135, 0.3); background: rgba(0, 255, 135, 0.02); }
+  .controls button.save:hover { color: #000; border-color: var(--green); background: var(--green); box-shadow: 0 0 12px rgba(0,255,135,0.3); }
+  
+  .controls .cstat { color: var(--dim); font-size: 10px; letter-spacing: 0.5px; margin-left: 4px; }
+  #saved { font-weight: 600; font-size: 10px; letter-spacing: 0.5px; }
+  
+  .empty { padding: 32px 16px; color: var(--faint); text-align: center; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<header>
+  <span id="liveDot" class="dot"></span>
+  <span class="logo">BENAX<span class="sep">//</span>speaker-track<span class="blink">_</span></span>
+  <span class="tag">esp8266 · mqtt</span>
+  <span class="sub" id="brokerInfo"></span>
+  <div class="right">
+    <span class="fps" id="fps"></span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="col">
+    <div class="panel">
+      <h2>live camera <span class="meta">/video · mjpeg</span></h2>
+      <div class="feed">
+        <img src="/video" alt="camera feed"/>
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <div id="badge" class="badge search">searching</div>
+      </div>
+      <div class="controls">
+        <button onclick="post('/api/rotate')">⟳ rotate 90°</button>
+        <button onclick="post('/api/flip')">⇄ flip</button>
+        <button class="save" onclick="post('/api/save')">▣ save orientation</button>
+        <span class="cstat" id="orient">rotate 0° · flip off</span>
+        <span class="cstat" id="saved"></span>
+      </div>
+      <div class="gaugewrap">
+        <div class="gauge">
+          <div class="dead" id="dead"></div>
+          <div class="mid"></div>
+          <div class="mark" id="mark" style="left:50%"></div>
+        </div>
+        <div class="glabel"><span>&#9664; speaker left</span><span>horizontal error</span><span>speaker right &#9654;</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="panel">
+      <h2>recognition</h2>
+      <div class="cards">
+        <div class="card"><div class="k">speaker id</div><div class="v small" id="speaker">&mdash;</div></div>
+        <div class="card"><div class="k">confidence</div><div class="v" id="conf">0.00</div></div>
+        <div class="card"><div class="k">status</div><div class="v small" id="status">&mdash;</div></div>
+        <div class="card"><div class="k">cmd &rarr; esp</div><div class="v small" id="cmd">&mdash;</div></div>
+        <div class="card"><div class="k">faces in frame</div><div class="v" id="faces">0</div></div>
+        <div class="card"><div class="k">mqtt</div><div class="v small" id="mqtt">&mdash;</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>servo · esp8266</h2>
+      <div class="servo">
+        <div class="dial">
+          <svg width="96" height="96" viewBox="0 0 96 96">
+            <circle cx="48" cy="48" r="42" fill="none" stroke="#1b212c" stroke-width="5"/>
+            <circle cx="48" cy="48" r="42" fill="none" stroke="#00f3ff" stroke-width="5"
+                    stroke-dasharray="3 5" opacity="0.15"/>
+            <line id="needle" x1="48" y1="48" x2="48" y2="12" stroke="#00f3ff" stroke-width="3"
+                  stroke-linecap="round"/>
+            <circle cx="48" cy="48" r="4" fill="#00f3ff"/>
+          </svg>
+          <div class="ang" id="angle">&mdash;</div>
+        </div>
+        <div class="info">
+          <div class="k">mode</div>
+          <div class="v" id="mode">&mdash;</div>
+          <div class="k">sweep range</div>
+          <div class="v" style="color:var(--dim)">0&deg; &mdash; 180&deg;</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>evidence log <span class="meta">live · csv + jsonl</span></h2>
+      <div class="logbox">
+        <table>
+          <thead><tr><th>time</th><th>status</th><th>cmd</th><th>conf</th><th>faces</th><th>lock</th></tr></thead>
+          <tbody id="logs"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function post(url){
+  try{
+    const r = await fetch(url,{method:'POST'}); const d = await r.json();
+    if(url.endsWith('/save')){
+      const s=document.getElementById('saved');
+      s.innerHTML = d.ok ? '<span style="color:var(--green)">✓ saved to config</span>' : '<span style="color:var(--red)">✗ save failed</span>';
+      setTimeout(()=>{s.textContent='';}, 2500);
+    }
+  }catch(e){}
+}
+function fmtMqtt(on){return on?'<span class="yes">&#9679; connected</span>':'<span class="no">&#9675; offline</span>';}
+async function tick(){
+  try{
+    const r = await fetch('/api/state'); const {state:s, logs} = await r.json();
+    document.getElementById('liveDot').className = 'dot' + (s.running?' on':'');
+    document.getElementById('brokerInfo').textContent = 'broker ' + s.broker + ' · threshold ' + s.threshold;
+    document.getElementById('fps').innerHTML = '<b>' + s.fps + '</b> fps';
+    document.getElementById('speaker').textContent = s.speaker_id;
+    document.getElementById('conf').textContent = (s.confidence||0).toFixed(2);
+    document.getElementById('conf').style.color = s.recognized ? 'var(--green)' : 'var(--dim)';
+    document.getElementById('status').textContent = s.status;
+    document.getElementById('cmd').textContent = s.command;
+    document.getElementById('faces').textContent = s.num_faces;
+    document.getElementById('mqtt').innerHTML = fmtMqtt(s.mqtt);
+    document.getElementById('orient').textContent =
+      'rotate ' + (s.rotate||0) + '° · flip ' + (s.flip?'on':'off');
+
+    const badge = document.getElementById('badge');
+    if(s.recognized){badge.className='badge lock';badge.textContent='locked';}
+    else{badge.className='badge search';badge.textContent=s.status==='SEARCHING'?'searching':'no speaker';}
+
+    // error gauge (-1..1) -> 0..100%
+    const e = Math.max(-1,Math.min(1, s.error_norm||0));
+    document.getElementById('mark').style.left = (50 + e*50) + '%';
+    // deadband shading
+    const db = 0.08;
+    const dead = document.getElementById('dead');
+    dead.style.left = (50 - db*50) + '%'; dead.style.width = (db*100) + '%';
+
+    // servo dial
+    if(s.esp_angle!=null){
+      document.getElementById('angle').textContent = s.esp_angle + '°';
+      document.getElementById('mode').textContent = s.esp_mode;
+      const a = (s.esp_angle/180)*180 - 90;            // 0..180 -> -90..+90
+      const rad = (a-90)*Math.PI/180;                   // 0deg points up
+      const x = 48 + 36*Math.cos(rad), y = 48 + 36*Math.sin(rad);
+      const n = document.getElementById('needle'); n.setAttribute('x2',x.toFixed(1)); n.setAttribute('y2',y.toFixed(1));
+    }
+
+    const tb = document.getElementById('logs');
+    if(!logs.length){
+      tb.innerHTML = '<tr><td colspan="6" class="empty">awaiting first decision&hellip;</td></tr>';
+    } else {
+      tb.innerHTML = logs.map(l=>`<tr>
+        <td>${l.t}</td>
+        <td><span class="pill s-${l.status}">${l.status}</span></td>
+        <td>${l.command}</td>
+        <td>${(l.confidence||0).toFixed(2)}</td>
+        <td>${l.faces}</td>
+        <td>${l.recognized?'<span class="yes">&#10003;</span>':'<span class="no">&mdash;</span>'}</td>
+      </tr>`).join('');
+    }
+  }catch(e){ document.getElementById('liveDot').className='dot'; }
+}
+setInterval(tick, 400); tick();
+</script>
+</body>
+</html>
