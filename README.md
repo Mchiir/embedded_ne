@@ -4,7 +4,6 @@
 [![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-green.svg)](https://opencv.org/)
 [![MQTT](https://img.shields.io/badge/MQTT-Mosquitto-orange.svg)](https://mosquitto.org/)
 [![ESP8266](https://img.shields.io/badge/ESP8266-Servo%20Controller-red.svg)](https://www.espressif.com/)
-[![License](https://img.shields.io/badge/License-Educational-lightgrey.svg)]()
 
 Locks onto **one pre-enrolled speaker**, ignores every other face in frame, and rotates a camera horizontally to keep that speaker centered. A PC runs the AI pipeline and publishes motor commands over **MQTT/Wi-Fi**; an **ESP8266** drives the **servo**.
 
